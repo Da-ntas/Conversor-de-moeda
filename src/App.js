@@ -1,10 +1,12 @@
 import React from "react";
+// import HomePage from "./pages/HomePage";
+
+import "./index.css";
+import Routes from "./routes";
 
 function App() {
   return (
-    <div className="App">
-      Olá Mundo
-    </div>
+    <Routes />
   );
 }
 
