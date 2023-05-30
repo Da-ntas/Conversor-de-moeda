@@ -1,40 +1,85 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Col, Form, Row } from "react-bootstrap";
+import Select from "react-select";
+import CurrencyInput from "react-currency-input-field";
+
+//icon
+import converIcon from "../../arrowIcon.png";
+
+//components
 import BasePage from "../../components/BasePage";
 import CardComponent from "../../components/CardComponent";
 import TitleBody from "../../components/TitleBody";
-import Select from "react-select";
 
-import converIcon from "../../convert-icon.png";
-import { apiGet } from "../../api";
-import { formatarMoeda } from "../../utils/currencyFormat";
+//api
+import { currency, currencyValues } from "../../api";
+
+//utils
+import { optionsFormat } from "../../utils/format";
 
 const HomePage = () => {
-    const options = [
-        { value: 'BR', label: 'Brazilian Real' },
-        { value: 'EU', label: 'Euro' },
-        { value: 'DOL', label: 'US Dollar' }
-    ]
 
-    const [optionsSelect1, setOptionsSelect1] = useState(options);
-    const [optionsSelect2, setOptionsSelect2] = useState(options);
+    const [options, setOptions] = useState(currency);
+    const [optionsSelect1, setOptionsSelect1] = useState();
+    const [optionsSelect2, setOptionsSelect2] = useState();
     const [select1, setSelect1] = useState();
     const [valueCoin1, setValueCoin1] = useState(0);
     const [select2, setSelect2] = useState();
     const [valueCoin2, setValueCoin2] = useState(0);
+    const [prefix1, setPrefix1] = useState('');
+    const [prefix2, setPrefix2] = useState('');
+    const [multiplyValue, setMultiplyValue] = useState(1);
 
 
-    const handleOnChange1 = (e) => {
+    const handleOnChangeSelect1 = (e) => {
         setSelect1(e);
-        let prevOptions2 = [...options];
+        let prevOptions2 = [...(optionsFormat(currency))];
         prevOptions2 = prevOptions2.filter((i) => i.value !== e.value)
         setOptionsSelect2(prevOptions2);
         setSelect2("");
+        const simbol = currency.find(i => i.sigla === e.value).simbolo
+        setPrefix1(simbol);
+        setMultiplyValue(1);
+        setValueCoin2(0);
+        setPrefix2('');
     }
 
-    const handleOnChange2 = (e) => {
+    const handleOnChangeSelect2 = (e) => {
         setSelect2(e);
+        const simbol = currency.find(i => i.sigla === e.value).simbolo
+        setPrefix2(simbol);
+
+        setMultiplyValue(currencyValues[select1.value][`${e.value}`])
     }
+
+    const handleChangeInput1 = (value) => {
+        setValueCoin1(value);
+    }
+
+    const handleChangeInput2 = (value) => {
+        setValueCoin2(value);
+        setValueCoin1(1);
+    }
+
+    useEffect(() => {
+        if(select2 && valueCoin1){
+            let valueMult = valueCoin1
+            
+            if(valueCoin1?.includes(',')){
+                valueMult = Number(valueCoin1.toString().replace(",", ".")) * multiplyValue;
+            }
+
+            setValueCoin2(valueMult * multiplyValue);
+        }
+    }, [multiplyValue, select2, valueCoin1])
+
+    useEffect(() => {
+        if(currency){
+            setOptions(currency);
+            setOptionsSelect1(optionsFormat(currency))
+            setOptionsSelect2(optionsFormat(currency))
+        }
+    }, [])
 
     return(
         <BasePage>
@@ -61,21 +106,22 @@ const HomePage = () => {
                             <Select 
                                 value={select1}
                                 options={optionsSelect1}
-                                onChange={handleOnChange1}
+                                onChange={handleOnChangeSelect1}
+                                isDisabled={!options || options.length === 0}
                             />
                         </Row>
                         <Row>
                             <Form.Group className="mb-3 mt-3">
-                                <Form.Control 
-                                    type="number" 
+                                <CurrencyInput 
                                     placeholder="Digite o primeiro valor"
-                                    style={{fontSize: 28}}
-                                    min="0" 
-                                    step="0.01" 
-                                    data-number-to-fixed="2" 
-                                    data-number-stepfactor="100"
+                                    style={{fontSize: 28, width: "100%"}}
+                                    defaultValue={0}
+                                    decimalsLimit={5}
+                                    allowNegativeValue={false}
                                     value={valueCoin1}
-                                    onChange={(value) => setValueCoin1(value)}
+                                    onValueChange={handleChangeInput1}
+                                    prefix={`${prefix1} `}
+                                    disabled={!select1}
                                 />
                             </Form.Group>
                         </Row>
@@ -88,21 +134,22 @@ const HomePage = () => {
                             <Select 
                                 value={select2}
                                 options={optionsSelect2}
-                                onChange={handleOnChange2}
+                                onChange={handleOnChangeSelect2}
+                                isDisabled={!options || options.length === 0 || !select1}
                             />
                         </Row>
                         <Row>
                             <Form.Group className="mb-3 mt-3">
-                                <Form.Control 
-                                    type="number" 
-                                    placeholder="Digite o segundo valor" 
-                                    style={{fontSize: 28}}
-                                    min="0" 
-                                    step="0.01" 
-                                    data-number-to-fixed="2" 
-                                    data-number-stepfactor="100"
+                                <CurrencyInput 
+                                    placeholder="Digite o primeiro valor"
+                                    style={{fontSize: 28, width: "100%"}}
+                                    defaultValue={0}
+                                    decimalsLimit={5}
+                                    allowNegativeValue={false}
                                     value={valueCoin2}
-                                    onChange={(value) => setValueCoin2(value)}
+                                    onValueChange={handleChangeInput2}
+                                    prefix={`${prefix2} `}
+                                    disabled={!select2 || !select1}
                                 />
                             </Form.Group>
                         </Row>
