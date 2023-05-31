@@ -19,67 +19,104 @@ import { optionsFormat } from "../../utils/format";
 
 const HomePage = () => {
 
-    const [options, setOptions] = useState(currency);
-    const [optionsSelect1, setOptionsSelect1] = useState();
-    const [optionsSelect2, setOptionsSelect2] = useState();
-    const [select1, setSelect1] = useState();
-    const [valueCoin1, setValueCoin1] = useState(0);
-    const [select2, setSelect2] = useState();
-    const [valueCoin2, setValueCoin2] = useState(0);
-    const [prefix1, setPrefix1] = useState('');
-    const [prefix2, setPrefix2] = useState('');
-    const [multiplyValue, setMultiplyValue] = useState(1);
+    const [optionsMoeda1, setOptionsMoeda1] = useState(optionsFormat(currency));
+    const [moeda1, setMoeda1] = useState();
+    const [prefixoMoeda1, setPrefixoMoeda1] = useState("");
+    const [valorInputMoeda1, setValorInputMoeda1] = useState(1);
+    const [optionsMoeda2, setOptionsMoeda2] = useState(optionsFormat(currency));
+    const [moeda2, setMoeda2] = useState();
+    const [prefixoMoeda2, setPrefixoMoeda2] = useState("");
+    const [valorInputMoeda2, setValorInputMoeda2] = useState(1);
 
+    const [multiplyValueSelect1, setMultiplyValueSelect1] = useState(0);
+    const [multiplyValueSelect2, setMultiplyValueSelect2] = useState(0);
+
+    const removeDuplicata = (moeda, type) => {
+        const currencyFormated = optionsFormat(currency);
+
+        const newValueMoeda = currencyFormated.filter((e) => e.value !== moeda.value);
+        if(type === "SELECT1")
+            setOptionsMoeda2(newValueMoeda);
+
+        else if(type === "SELECT2")
+            setOptionsMoeda1(newValueMoeda)
+    
+    }
 
     const handleOnChangeSelect1 = (e) => {
-        setSelect1(e);
-        let prevOptions2 = [...(optionsFormat(currency))];
-        prevOptions2 = prevOptions2.filter((i) => i.value !== e.value)
-        setOptionsSelect2(prevOptions2);
-        setSelect2("");
-        const simbol = currency.find(i => i.sigla === e.value).simbolo
-        setPrefix1(simbol);
-        setMultiplyValue(1);
-        setValueCoin2(0);
-        setPrefix2('');
+        setMoeda1(e);
+
+        // remove a mesma opção do outro select para não causar problema
+        removeDuplicata(e, "SELECT1");
+
+        if(e.value === moeda2?.value)
+            setMoeda2();
+
+        const {simbolo: prefixMoeda} = currency.find((i) => i.sigla === e.value)
+        setPrefixoMoeda1(prefixMoeda);  
     }
 
     const handleOnChangeSelect2 = (e) => {
-        setSelect2(e);
-        const simbol = currency.find(i => i.sigla === e.value).simbolo
-        setPrefix2(simbol);
+        setMoeda2(e);
 
-        setMultiplyValue(currencyValues[select1.value][`${e.value}`])
+        // remove a mesma opção do outro select para não causar problema
+        removeDuplicata(e, "SELECT2");
+
+        if(e.value === moeda2?.value)
+            setMoeda2();
+
+        const {simbolo: prefixMoeda} = currency.find((i) => i.sigla === e.value)
+        setPrefixoMoeda2(prefixMoeda);
     }
 
-    const handleChangeInput1 = (value) => {
-        setValueCoin1(value);
+    const handleChangeInput1 = (e) => {
+        if(!e) {
+            setValorInputMoeda1(0);
+            return;
+        }
+
+        setValorInputMoeda1(e);
+        setValorInputMoeda2(1);
+        
+        if(multiplyValueSelect1){
+            let valueMult = e;
+
+            if(valueMult.includes(','))
+                valueMult = valueMult.replace(",", ".");
+    
+            setValorInputMoeda2((valueMult * multiplyValueSelect1).toFixed(2))
+        }
     }
 
-    const handleChangeInput2 = (value) => {
-        setValueCoin2(value);
-        setValueCoin1(1);
+    const handleChangeInput2 = (e) => {
+        if(!e) {
+            setValorInputMoeda2(0);
+            return;
+        }
+
+        setValorInputMoeda2(e);
+        setValorInputMoeda1(1);
+        
+        if(multiplyValueSelect2){
+            let valueMult = e;
+
+            if(valueMult.includes(','))
+                valueMult = valueMult.replace(",", ".");
+    
+            setValorInputMoeda1((valueMult * multiplyValueSelect2).toFixed(2))
+        }
     }
 
     useEffect(() => {
-        if(select2 && valueCoin1){
-            let valueMult = valueCoin1
-            
-            if(valueCoin1?.includes(',')){
-                valueMult = Number(valueCoin1.toString().replace(",", ".")) * multiplyValue;
-            }
+        if(moeda1 && moeda2){
+            let multiplyByValueSelect1 = currencyValues[moeda1.value][moeda2.value]
+            setMultiplyValueSelect1(multiplyByValueSelect1)
 
-            setValueCoin2(valueMult * multiplyValue);
+            let multiplyByValueSelect2 = currencyValues[moeda2.value][moeda1.value]
+            setMultiplyValueSelect2(multiplyByValueSelect2)
         }
-    }, [multiplyValue, select2, valueCoin1])
+    }, [moeda1, moeda2])
 
-    useEffect(() => {
-        if(currency){
-            setOptions(currency);
-            setOptionsSelect1(optionsFormat(currency))
-            setOptionsSelect2(optionsFormat(currency))
-        }
-    }, [])
 
     return(
         <BasePage>
@@ -104,10 +141,10 @@ const HomePage = () => {
                     <Col md={5} xl={5} lg={5}>
                         <Row>
                             <Select 
-                                value={select1}
-                                options={optionsSelect1}
+                                value={moeda1}
+                                options={optionsMoeda1}
                                 onChange={handleOnChangeSelect1}
-                                isDisabled={!options || options.length === 0}
+                                isDisabled={!currency || currency.length === 0}
                             />
                         </Row>
                         <Row>
@@ -118,10 +155,10 @@ const HomePage = () => {
                                     defaultValue={0}
                                     decimalsLimit={5}
                                     allowNegativeValue={false}
-                                    value={valueCoin1}
+                                    value={valorInputMoeda1}
                                     onValueChange={handleChangeInput1}
-                                    prefix={`${prefix1} `}
-                                    disabled={!select1}
+                                    prefix={`${prefixoMoeda1} `}
+                                    disabled={!currency || currency.length === 0 || !moeda1 || !moeda2}
                                 />
                             </Form.Group>
                         </Row>
@@ -132,10 +169,10 @@ const HomePage = () => {
                     <Col md={6} xl={6} lg={6}>
                         <Row>
                             <Select 
-                                value={select2}
-                                options={optionsSelect2}
+                                value={moeda2}
+                                options={optionsMoeda2}
                                 onChange={handleOnChangeSelect2}
-                                isDisabled={!options || options.length === 0 || !select1}
+                                disabled={!currency || currency.length === 0}
                             />
                         </Row>
                         <Row>
@@ -146,10 +183,10 @@ const HomePage = () => {
                                     defaultValue={0}
                                     decimalsLimit={5}
                                     allowNegativeValue={false}
-                                    value={valueCoin2}
+                                    value={valorInputMoeda2}
                                     onValueChange={handleChangeInput2}
-                                    prefix={`${prefix2} `}
-                                    disabled={!select2 || !select1}
+                                    prefix={`${prefixoMoeda2} `}
+                                    disabled={!currency || currency.length === 0 || !moeda1 || !moeda2}
                                 />
                             </Form.Group>
                         </Row>

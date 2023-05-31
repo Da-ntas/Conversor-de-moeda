@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Nav, Navbar } from "react-bootstrap";
+import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 
 const NavComponent = () => {
     return (
@@ -9,8 +9,10 @@ const NavComponent = () => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" className="end-0"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="justify-content-end flex-grow-1">
-                    <Nav.Link href="#home">Home</Nav.Link>
-                    <Nav.Link href="#link">Link</Nav.Link>
+                    <NavDropdown eventKey={3} title="Conversores" id="basic-nav-dropdown">
+                      <NavDropdown.Item eventKey={3.1} href="/moeda">Moeda</NavDropdown.Item>
+                      <NavDropdown.Item eventKey={3.2} href="/medida">Medida</NavDropdown.Item>
+                    </NavDropdown>
                 </Nav>
                 </Navbar.Collapse>
           </Container>
