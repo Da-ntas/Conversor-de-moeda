@@ -41,7 +41,7 @@ export const currency = [
         codigo_iso: "CAD",
         simbolo: "C$"
     }
-  ]
+]
   
 
 export const currencyValues = {
@@ -100,5 +100,102 @@ export const currencyValues = {
         JPY: 0.0097,
         GBP: 1.69,
         AUD: 0.89
+    }
+}
+
+export const medidas = [
+    {
+        sigla: "KM",
+        nome: "Quilômetro",
+        simbolo: "KM"
+    },
+    {
+        sigla: "HM",
+        nome: "Hectômetro",
+        simbolo: "HM"
+    },
+    {
+        sigla: "DAM",
+        nome: "Decâmetro",
+        simbolo: "DAM"
+    },
+    {
+        sigla: "M",
+        nome: "Metro",
+        simbolo: "M"
+    },
+    {
+        sigla: "DM",
+        nome: "Decímetro",
+        simbolo: "DM"
+    },
+    {
+        sigla: "CM",
+        nome: "Centímetro",
+        simbolo: "CM"
+    },
+    {
+        sigla: "MM",
+        nome: "Milímetro",
+        simbolo: "MM"
+    },
+]
+
+export const medidasValues = {
+    M: {
+      KM: 1000,
+      HM: 100,
+      DAM: 10,
+      DM: 0.1,
+      CM: 0.01,
+      MM: 0.001
+    },
+    KM: {
+      M: 0.001,
+      HM: 0.1,
+      DAM: 1,
+      DM: 10000,
+      CM: 100000,
+      MM: 1000000
+    },
+    HM: {
+      M: 0.01,
+      KM: 10,
+      DAM: 100,
+      DM: 1000,
+      CM: 10000,
+      MM: 100000
+    },
+    DAM: {
+      M: 0.1,
+      KM: 0.001,
+      HM: 0.01,
+      DM: 100,
+      CM: 1000,
+      MM: 10000
+    },
+    DM: {
+      M: 10,
+      KM: 0.0001,
+      HM: 0.001,
+      DAM: 0.01,
+      CM: 10,
+      MM: 100
+    },
+    CM: {
+      M: 100,
+      KM: 0.00001,
+      HM: 0.0001,
+      DAM: 0.001,
+      DM: 0.1,
+      MM: 10
+    },
+    MM: {
+      M: 1000,
+      KM: 0.000001,
+      HM: 0.00001,
+      DAM: 0.0001,
+      DM: 0.01,
+      CM: 0.1
     }
 }

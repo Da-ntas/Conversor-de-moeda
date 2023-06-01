@@ -122,14 +122,6 @@ const HomePage = () => {
         <BasePage>
             <TitleBody
                 title="Conversor de moedas"
-                buttonValue={[
-                    {
-                        type: "button",
-                        variant: "primary",
-                        size: "md",
-                        value: "Voltar"
-                    },
-                ]}
             />
             <CardComponent
                 md={12}
