@@ -22,6 +22,7 @@ const TitleBody = (props) => {
                                     variant={op?.variant}
                                     size={op?.size}
                                     className={op?.className}
+                                    onClick={op?.onClickFunc}
                                 >
                                     {op.value}
                                 </Button>
