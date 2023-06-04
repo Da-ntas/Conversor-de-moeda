@@ -15,7 +15,7 @@ const ListaMoeda = () => {
     const columns = [
         {
             accessorKey: 'option',
-            header: 'Medida'
+            header: 'Moeda'
         },
         {
             accessorKey: 'equals',
