@@ -1,3 +1,4 @@
+import { MaterialReactTable } from "material-react-table";
 import React, { useEffect, useState } from "react";
 import { Form, Row, Col } from "react-bootstrap";
 import Select from "react-select";
@@ -7,7 +8,8 @@ import converIcon from "../../arrowIcon.png";
 import BasePage from "../../components/BasePage";
 import CardComponent from "../../components/CardComponent";
 import TitleBody from "../../components/TitleBody";
-import { optionsFormat } from "../../utils/format";
+import { getDate, optionsFormat } from "../../utils/format";
+import { history } from "../../utils/history";
 
 const ConversorMedida = () => {
     const [optionsMedida1, setOptionsMedida1] = useState(optionsFormat(medidas));
@@ -21,6 +23,34 @@ const ConversorMedida = () => {
 
     const [multiplyValueSelect1, setMultiplyValueSelect1] = useState(0);
     const [multiplyValueSelect2, setMultiplyValueSelect2] = useState(0);
+    
+    const [flagMedida1, setFlagMedida1] = useState(true);
+    const [flagMedida2, setFlagMedida2] = useState(false);
+
+    const [dataHistory, setDataHistory] = useState(JSON.parse(sessionStorage.getItem('medida') ?? '[]'));
+    
+    const columns = [
+        {
+            accessorKey: 'from',
+            header: 'De'
+        },
+        {
+            accessorKey: 'value1',
+            header: 'Valor 1'
+        },
+        {
+            accessorKey: 'to',
+            header: 'Para'
+        },
+        {
+            accessorKey: 'value2',
+            header: 'Valor 2'
+        },
+        {
+            accessorKey: 'dateModified',
+            header: 'Data da conversão'
+        }
+    ]
 
     const removeDuplicata = (moeda, type) => {
         const currencyFormated = optionsFormat(medidas);
@@ -46,8 +76,9 @@ const ConversorMedida = () => {
         const {simbolo: prefixMedida} = medidas.find((i) => i.sigla === e.value)
         setPrefixoMedida1(prefixMedida);  
 
-        setValueMedida1("");  
-        setValueMedida2("");
+        setValueMedida1("1");
+        setFlagMedida1(true);
+        setFlagMedida2(false);
     }
 
     const handleOnChangeSelect2 = (e) => {
@@ -61,9 +92,10 @@ const ConversorMedida = () => {
 
         const {simbolo: prefixMedida} = medidas.find((i) => i.sigla === e.value)
         setPrefixoMedida2(prefixMedida); 
-
-        setValueMedida1("");  
-        setValueMedida2("");
+ 
+        setValueMedida2("1");
+        setFlagMedida1(true);
+        setFlagMedida2(false);
     }
 
     const changeValueMedida1 = (e) => {
@@ -73,17 +105,50 @@ const ConversorMedida = () => {
             return;
         }
 
-        setValueMedida1(value);
-        setValueMedida2(1);
-        
-        if(multiplyValueSelect1){
-
-            if(value.includes(','))
-                value = value.replace(",", ".");
-    
-            setValueMedida2(value * multiplyValueSelect1)
+        if(value.toString() !== valueMedida1.toString()){
+            setValueMedida1(value);
+            setFlagMedida1(true);
+            setFlagMedida2(false);
         }
     }    
+
+    useEffect(() => {
+        let timeout1 = null;
+        
+        if(valueMedida1 && flagMedida1 && !flagMedida2){
+            timeout1 = setTimeout(() => {
+                setValueMedida2(1);
+
+                if(multiplyValueSelect2){
+                    
+                    let valueMult = valueMedida1;
+        
+                    if(valueMult.toString().includes(','))
+                        valueMult = valueMult.replace(",", ".");
+            
+                    setValueMedida2(valueMult * multiplyValueSelect2)
+                    setFlagMedida1(false);
+                    setFlagMedida2(false);
+                    
+                    const obj = {
+                        from: medida1.value,
+                        to: medida2.value,
+                        value1: valueMedida1,
+                        value2: (valueMult * multiplyValueSelect2),
+                        dateModified: getDate()
+                    }
+
+                    history("medida", obj)
+
+                    setDataHistory((items) => [...items, obj])
+                }
+            }, 500)
+        }
+
+        return () => {
+            clearTimeout(timeout1);
+        }
+    }, [flagMedida1, flagMedida2, medida1, medida2, multiplyValueSelect2, valueMedida1])
 
     const changeValueMedida2 = (e) => {
         let value = e.target.value?.replace(/\D/g, "");
@@ -92,17 +157,52 @@ const ConversorMedida = () => {
             return;
         }
 
-        setValueMedida2(value);
-        setValueMedida1(1);
-        
-        if(multiplyValueSelect2){
 
-            if(value.includes(','))
-            value = value.replace(",", ".");
-    
-            setValueMedida2(value * multiplyValueSelect1)
+        if(value.toString() !== valueMedida2.toString()){
+            setValueMedida2(value);
+            setFlagMedida1(false);
+            setFlagMedida2(true);
         }
     }
+
+    useEffect(() => {
+        let timeout1 = null;
+        
+        if(valueMedida2 && !flagMedida1 && flagMedida2){
+            timeout1 = setTimeout(() => {
+                setValueMedida1(1);
+
+                if(multiplyValueSelect1){
+                    
+                    let valueMult = valueMedida2;
+        
+                    if(valueMult.toString().includes(','))
+                        valueMult = valueMult.replace(",", ".");
+            
+                    setValueMedida1(valueMult * multiplyValueSelect1)
+                    setFlagMedida1(false);
+                    setFlagMedida2(false);
+                    
+                    const obj = {
+                        from: medida2.value,
+                        to: medida1.value,
+                        value1: valueMedida2,
+                        value2: (valueMult * multiplyValueSelect1),
+                        dateModified: getDate()
+                    }
+
+                    history("medida", obj)
+
+                    setDataHistory((items) => [...items, obj])
+                    
+                }
+            }, 500)
+        }
+
+        return () => {
+            clearTimeout(timeout1);
+        }
+    }, [flagMedida1, flagMedida2, medida1, medida2, multiplyValueSelect1, valueMedida2])
 
     useEffect(() => {
         if(medida1 && medida2){
@@ -172,6 +272,25 @@ const ConversorMedida = () => {
                     </Col>
                     
                 </Row>
+            </CardComponent>            
+            <CardComponent
+                md={12}
+                xl={12}
+                lg={12}
+                className={"mt-5"}
+            >
+                <Row className="p-3"><h5>Histórico</h5></Row>
+                <Row >
+                    <div className="tableIndex">
+                        <MaterialReactTable
+                            columns={columns}
+                            data={dataHistory}
+                            enableColumnFilters
+                            enableColumnOrdering
+                            
+                        />
+                    </div>
+                </Row>    
             </CardComponent>
         </BasePage>
         </>
