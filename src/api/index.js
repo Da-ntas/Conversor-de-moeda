@@ -152,8 +152,8 @@ export const medidasValues = {
     },
     KM: {
       M: 0.001,
-      HM: 0.1,
-      DAM: 1,
+      HM: 0.01,
+      DAM: 0.1,
       DM: 10000,
       CM: 100000,
       MM: 1000000

@@ -13,6 +13,10 @@ const NavComponent = () => {
                       <NavDropdown.Item eventKey={3.1} href="/moeda">Moeda</NavDropdown.Item>
                       <NavDropdown.Item eventKey={3.2} href="/medida">Medida</NavDropdown.Item>
                     </NavDropdown>
+                    <NavDropdown eventKey={3} title="Listas" id="basic-nav-dropdown">
+                      <NavDropdown.Item eventKey={3.1} href="/lista-moeda">Moeda</NavDropdown.Item>
+                      <NavDropdown.Item eventKey={3.2} href="/lista-medida">Medida</NavDropdown.Item>
+                    </NavDropdown>
                 </Nav>
                 </Navbar.Collapse>
           </Container>
